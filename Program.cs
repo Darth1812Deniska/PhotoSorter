@@ -8,27 +8,28 @@ namespace PhotoSorter
 {
     class Program
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         static void Main(string[] args)
         {
             string fromFolderPath = @"/Users/admin/Pictures/Сохранение 20180505";
             if (!Directory.Exists(fromFolderPath))
             {
-                Console.WriteLine($"Папки {fromFolderPath} не существует");
+                Logger.Error($"Папки {fromFolderPath} не существует");
                 return;
             }
             else
             {
-                Console.WriteLine($"Папка {fromFolderPath} найдена");
+                Logger.Info($"Папка {fromFolderPath} найдена");
             }
             string toFolderPath = @"/Users/admin/Pictures/test";
             if (!Directory.Exists(toFolderPath))
             {
-                Console.WriteLine($"Папки {toFolderPath} не существует");
+                Logger.Error($"Папки {toFolderPath} не существует");
                 return;
             }
             else
             {
-                Console.WriteLine($"Папка {toFolderPath} найдена");
+                Logger.Info($"Папка {toFolderPath} найдена");
             }
             List<PhotoFileInfo> photoFiles = GetPhotoFiles(fromFolderPath);
             foreach (PhotoFileInfo fileInfo in photoFiles)
