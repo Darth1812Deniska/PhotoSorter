@@ -34,14 +34,20 @@ namespace PhotoSorter
                 using (ExifReader reader = new ExifReader(FileFullPath))
                 {
                     reader.GetTagValue(ExifTags.DateTime, out _createDatetime);
+                    if (_createDatetime  == DateTime.MinValue)
+                    {
+                        _createDatetime = File.GetCreationTime(fileFullPath);
+                    }
+                    Logger.Debug($"Debug ExifCreationTime = {_createDatetime}");
+                    Logger.Debug($"Debug CreationTime = {File.GetCreationTime(fileFullPath)}");
                 }
             }
             catch
             {
-                _createDatetime = DateTime.MinValue;
+                Logger.Debug($"Debug CreationTime = {File.GetCreationTime(fileFullPath)}");
+                _createDatetime = File.GetCreationTime(fileFullPath);
             }
 
-            //_createDatetime = createDateTime;
             _fileName = Path.GetFileName(FileFullPath);
             Logger.Info($"Имя файла = {_fileName}, " +
                 $"расширение файла = {Path.GetExtension(FileFullPath)}");

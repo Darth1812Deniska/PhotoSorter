@@ -86,19 +86,49 @@ namespace PhotoSorter
                 switch(replaceOrCopy)
                 {
                     case "C":
-                        File.Copy(fileInfo.FileFullPath, $"{toFolderPath}{Path.DirectorySeparatorChar}{fileInfo.FileNameToMove}", true);
-                        break;
-                    default:
-                        File.Copy(fileInfo.FileFullPath, $"{toFolderPath}{Path.DirectorySeparatorChar}{fileInfo.FileNameToMove}", true);
+                        FileCopy(fileInfo.FileFullPath, toFolderPath, fileInfo.FileNameToMove);
                         break;
                     case "R":
-                        File.Replace(fileInfo.FileFullPath, $"{toFolderPath}{Path.DirectorySeparatorChar}{fileInfo.FileNameToMove}",
-                            $"{toFolderPath}{Path.DirectorySeparatorChar}{fileInfo.FileNameToMove}.bac");
+                        FileReplace(fileInfo.FileFullPath, toFolderPath, fileInfo.FileNameToMove);
+                        break;
+                    default:
+                        FileCopy(fileInfo.FileFullPath, toFolderPath, fileInfo.FileNameToMove);
                         break;
                 }
             }
-
         }
+
+        static private void FileCopy(string fileToCopyPath, string folderToCopyPath, string newFileName)
+        {
+            string fullCopyFilePath = $"{folderToCopyPath}{Path.DirectorySeparatorChar}{newFileName}";
+            string logText = $"Файл {fileToCopyPath} будет скопирован в {fullCopyFilePath}";
+            Logger.Info(logText);
+            if (File.Exists(fullCopyFilePath))
+            {
+                logText = $"Файл {fullCopyFilePath} - существует и будет заменен";
+                Logger.Warn(logText);
+            }
+            File.Copy(fileToCopyPath, fullCopyFilePath, true);
+            logText = $"{fileToCopyPath} был скопирован в {fullCopyFilePath}";
+            Logger.Info(logText);
+        }
+
+        static private void FileReplace(string fileToReplacePath, string folderToReplacePath, string newFileName)
+        {
+            string fullReplaceFilePath = $"{folderToReplacePath}{Path.DirectorySeparatorChar}{newFileName}";
+            string fullReplaceBacFilePath = $"{fullReplaceFilePath}.bac";
+            string logText = $"Файл {fileToReplacePath} будет перемещен в {fullReplaceFilePath}";
+            Logger.Info(logText);
+            if (File.Exists(fullReplaceFilePath))
+            {
+                logText = $"Файл {fullReplaceFilePath} - существует и будет заменен";
+                Logger.Warn(logText);
+            }
+            File.Replace(fileToReplacePath, fullReplaceFilePath, fullReplaceBacFilePath);
+            logText = $"{fileToReplacePath} был перемещен в {fullReplaceFilePath}";
+            Logger.Info(logText);
+        }
+
         static private List<PhotoFileInfo> GetPhotoFiles(string fromFolderPath)
         {
             List<PhotoFileInfo> result = new List<PhotoFileInfo>();
