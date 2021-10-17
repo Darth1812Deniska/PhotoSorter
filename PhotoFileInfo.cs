@@ -22,6 +22,8 @@ namespace PhotoSorter
         public string FolderToMove { get => GetFolderToMove(); }
         public string FileNameToMove { get => GetFileNameToMove(); }
         public string DatePrefix { get => GetDatePrefix(); }
+        public string NewFileName { get => GetNewFileName(); }
+
 
         public PhotoFileInfo(string fileFullPath)
         {
@@ -32,14 +34,20 @@ namespace PhotoSorter
                 using (ExifReader reader = new ExifReader(FileFullPath))
                 {
                     reader.GetTagValue(ExifTags.DateTime, out _createDatetime);
+                    if (_createDatetime  == DateTime.MinValue)
+                    {
+                        _createDatetime = File.GetCreationTime(fileFullPath);
+                    }
+                    Logger.Debug($"Debug ExifCreationTime = {_createDatetime}");
+                    Logger.Debug($"Debug CreationTime = {File.GetCreationTime(fileFullPath)}");
                 }
             }
             catch
             {
-                _createDatetime = DateTime.MinValue;
+                Logger.Debug($"Debug CreationTime = {File.GetCreationTime(fileFullPath)}");
+                _createDatetime = File.GetCreationTime(fileFullPath);
             }
 
-            //_createDatetime = createDateTime;
             _fileName = Path.GetFileName(FileFullPath);
             Logger.Info($"Имя файла = {_fileName}, " +
                 $"расширение файла = {Path.GetExtension(FileFullPath)}");
@@ -58,15 +66,18 @@ namespace PhotoSorter
 
         private string GetFileNameToMove()
         {
-            string result = string.Empty;
             string folderToMove = GetFolderToMove();
-            result = $"{folderToMove}{Path.DirectorySeparatorChar}{FileName}";
+            string result = $"{folderToMove}{Path.DirectorySeparatorChar}{NewFileName}";
             return result;
         }
 
         private string GetDatePrefix()
         {
             return $"{CreateYear:D4}{CreateMonth:D2}{CreateDay:D2}";
+        }
+        private string GetNewFileName()
+        {
+            return $"{DatePrefix}_{FileName}";
         }
 
     }
