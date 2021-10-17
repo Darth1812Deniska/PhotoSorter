@@ -22,6 +22,8 @@ namespace PhotoSorter
         public string FolderToMove { get => GetFolderToMove(); }
         public string FileNameToMove { get => GetFileNameToMove(); }
         public string DatePrefix { get => GetDatePrefix(); }
+        public string NewFileName { get => GetNewFileName(); }
+
 
         public PhotoFileInfo(string fileFullPath)
         {
@@ -58,15 +60,18 @@ namespace PhotoSorter
 
         private string GetFileNameToMove()
         {
-            string result = string.Empty;
             string folderToMove = GetFolderToMove();
-            result = $"{folderToMove}{Path.DirectorySeparatorChar}{FileName}";
+            string result = $"{folderToMove}{Path.DirectorySeparatorChar}{NewFileName}";
             return result;
         }
 
         private string GetDatePrefix()
         {
             return $"{CreateYear:D4}{CreateMonth:D2}{CreateDay:D2}";
+        }
+        private string GetNewFileName()
+        {
+            return $"{DatePrefix}_{FileName}";
         }
 
     }

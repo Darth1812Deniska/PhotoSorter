@@ -13,14 +13,19 @@ namespace PhotoSorter
         static void Main(string[] args)
         {
             var parser = new FileIniDataParser();
+            string fromFolderPath = string.Empty;
+            string toFolderPath = string.Empty;
+            string replaceOrCopy = string.Empty;
             if (File.Exists("config.ini"))
             {
                 Logger.Info("\"config.ini\" Найден");
                 IniData data = parser.ReadFile("config.ini");
-                string fromFolderPath = data["PhotoSorter"]["FromFolderPath"];
+                fromFolderPath = data["PhotoSorter"]["FromFolderPath"];
                 Logger.Debug(fromFolderPath);
-                string toFolderPath = data["PhotoSorter"]["ToFolderPath"];
+                toFolderPath = data["PhotoSorter"]["ToFolderPath"];
                 Logger.Debug(toFolderPath);
+                replaceOrCopy = data["PhotoSorter"]["ReplaceOrCopy"];
+                Logger.Debug(replaceOrCopy);
             }
             else
             {
@@ -32,15 +37,26 @@ namespace PhotoSorter
                 iniData["PhotoSorter"].AddKey("ReplaceOrCopy");
                 iniData["PhotoSorter"]["FromFolderPath"] = string.Empty;
                 iniData["PhotoSorter"]["ToFolderPath"] = string.Empty;
-                iniData["PhotoSorter"]["ToFolderPath"] = "C";
+                iniData["PhotoSorter"]["ReplaceOrCopy"] = "C";
                 parser.WriteFile("config.ini", iniData);
                 Logger.Info("\"config.ini\" Создан");
                 return;
             }
-            
 
-            /*
-            string fromFolderPath = @"/Users/admin/Pictures/Сохранение 20180505";
+            bool fromFolderPathIsEmpty = string.IsNullOrEmpty(fromFolderPath);
+            bool toFolderPathIsEmpty = string.IsNullOrEmpty(toFolderPath);
+            if (fromFolderPathIsEmpty)
+            {
+                Logger.Error("Не задана папка с изображениями");
+                return;
+            }
+
+            if (toFolderPathIsEmpty)
+            {
+                Logger.Error("Не задана папка для сортировки");
+                return;
+            }
+
             if (!Directory.Exists(fromFolderPath))
             {
                 Logger.Error($"Папки {fromFolderPath} не существует");
@@ -50,11 +66,11 @@ namespace PhotoSorter
             {
                 Logger.Info($"Папка {fromFolderPath} найдена");
             }
-            string toFolderPath = @"/Users/admin/Pictures/test";
             if (!Directory.Exists(toFolderPath))
             {
-                Logger.Error($"Папки {toFolderPath} не существует");
-                return;
+                Logger.Info($"Папки {toFolderPath} не существует");
+                Directory.CreateDirectory(toFolderPath);
+                Logger.Info($"Папка {toFolderPath} создана");
             }
             else
             {
@@ -67,9 +83,20 @@ namespace PhotoSorter
                 string fullFolderToMove = $"{toFolderPath}{Path.DirectorySeparatorChar}{folderToMove}";
                 Console.WriteLine($"fullFolderToMove = {fullFolderToMove}");
                 Directory.CreateDirectory(fullFolderToMove);
-                File.Copy(fileInfo.FileFullPath, $"{toFolderPath}{Path.DirectorySeparatorChar}{fileInfo.FileNameToMove}");
+                switch(replaceOrCopy)
+                {
+                    case "C":
+                        File.Copy(fileInfo.FileFullPath, $"{toFolderPath}{Path.DirectorySeparatorChar}{fileInfo.FileNameToMove}", true);
+                        break;
+                    default:
+                        File.Copy(fileInfo.FileFullPath, $"{toFolderPath}{Path.DirectorySeparatorChar}{fileInfo.FileNameToMove}", true);
+                        break;
+                    case "R":
+                        File.Replace(fileInfo.FileFullPath, $"{toFolderPath}{Path.DirectorySeparatorChar}{fileInfo.FileNameToMove}",
+                            $"{toFolderPath}{Path.DirectorySeparatorChar}{fileInfo.FileNameToMove}.bac");
+                        break;
+                }
             }
-            */
 
         }
         static private List<PhotoFileInfo> GetPhotoFiles(string fromFolderPath)
