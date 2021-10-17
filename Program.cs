@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ExifLib;
+using IniParser;
+using IniParser.Model;
 
 namespace PhotoSorter
 {
@@ -11,6 +12,34 @@ namespace PhotoSorter
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         static void Main(string[] args)
         {
+            var parser = new FileIniDataParser();
+            if (File.Exists("config.ini"))
+            {
+                Logger.Info("\"config.ini\" Найден");
+                IniData data = parser.ReadFile("config.ini");
+                string fromFolderPath = data["PhotoSorter"]["FromFolderPath"];
+                Logger.Debug(fromFolderPath);
+                string toFolderPath = data["PhotoSorter"]["ToFolderPath"];
+                Logger.Debug(toFolderPath);
+            }
+            else
+            {
+                Logger.Info("\"config.ini\" Не найден");
+                IniData iniData = new IniData();
+                iniData.Sections.AddSection("PhotoSorter");
+                iniData["PhotoSorter"].AddKey("FromFolderPath");
+                iniData["PhotoSorter"].AddKey("ToFolderPath");
+                iniData["PhotoSorter"].AddKey("ReplaceOrCopy");
+                iniData["PhotoSorter"]["FromFolderPath"] = string.Empty;
+                iniData["PhotoSorter"]["ToFolderPath"] = string.Empty;
+                iniData["PhotoSorter"]["ToFolderPath"] = "C";
+                parser.WriteFile("config.ini", iniData);
+                Logger.Info("\"config.ini\" Создан");
+                return;
+            }
+            
+
+            /*
             string fromFolderPath = @"/Users/admin/Pictures/Сохранение 20180505";
             if (!Directory.Exists(fromFolderPath))
             {
@@ -40,7 +69,8 @@ namespace PhotoSorter
                 Directory.CreateDirectory(fullFolderToMove);
                 File.Copy(fileInfo.FileFullPath, $"{toFolderPath}{Path.DirectorySeparatorChar}{fileInfo.FileNameToMove}");
             }
-            
+            */
+
         }
         static private List<PhotoFileInfo> GetPhotoFiles(string fromFolderPath)
         {
