@@ -10,8 +10,10 @@ namespace PhotoSorter
     class Program
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        
         static void Main(string[] args)
         {
+            Logger.Info("Start");
             var parser = new FileIniDataParser();
             string fromFolderPath = string.Empty;
             string toFolderPath = string.Empty;
@@ -96,6 +98,7 @@ namespace PhotoSorter
                         break;
                 }
             }
+            Logger.Info("Перенос завершен");
         }
 
         static private void FileCopy(string fileToCopyPath, string folderToCopyPath, string newFileName)
